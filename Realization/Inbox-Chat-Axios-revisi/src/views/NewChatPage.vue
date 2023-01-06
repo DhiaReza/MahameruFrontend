@@ -5,40 +5,37 @@
                 <ion-buttons slot="start">
                     <ion-back-button default-href="/inbox"></ion-back-button>
                 </ion-buttons>
-                <ion-title v-for="(chat, index) in chats" v-bind:key="index">
-                    <div class="viewchat-header">
+                <ion-title>
+                    <div class="newchat-header">
                         <h1>
-                            {{ chat.to_user }}
+                            New Chat
                         </h1>
                     </div>
                 </ion-title>
             </ion-toolbar>
         </ion-header>
-        <ion-content>
-            <div class="container" v-for="chat in chatBox" :key="chat.id">
-                <div v-if="chat.isPerson">
-                    <div class="msg-person">
-                        <div class="msg">
-                            <p class="chat">
-                                {{ chat.message }}
-                            </p>
-                            <span class="time">{{ chat.time }}</span>
-                            <div class="clearfix"></div>
+        <ion-content :fullscreen="true">
+            <ion-list>
+                <ion-item>
+                    <ion-label position="stacked">Penerima</ion-label>
+                    <ion-input class="atas" placeholder="Tujuan Penerima" v-model="to_telp"></ion-input>
+                </ion-item>
+            </ion-list>
+            <ion-list>
+                <div class="container" v-for="chat in chatBox" :key="chat.id">
+                    <div v-if="chat.id >= 1">
+                        <div class="msg-you">
+                            <div class="msg">
+                                <p class="chat">
+                                    {{ chat.message }}
+                                </p>
+                                <span class="time">{{ chat.time }}</span>
+                                <div class="clearfix"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div v-else>
-                    <div class="msg-you">
-                        <div class="msg">
-                            <p class="chat">
-                                {{ chat.message }}
-                            </p>
-                            <span class="time">{{ chat.time }}</span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </ion-list>
         </ion-content>
         <ion-footer>
             <div class="chat-input">
@@ -60,7 +57,7 @@
 
 <script lang="ts">
 import axios from 'axios';
-import { defineComponent, ref , onMounted} from 'vue';
+import { defineComponent } from 'vue';
 import {
     IonPage,
     IonHeader,
@@ -82,63 +79,58 @@ export default defineComponent({
         IonBackButton,
         // IonIcon
     },
-    data: function () {
+
+    data() {
         return {
-            to_user: 'fahreza',
+            to_telp: '',
             message: '',
             time: `${new Date().getHours()}:${new Date().getMinutes()}`,
+            from_telp: '0878001',
 
-            msgId: 2,
+            Id: 1,
             chatBox: [
                 {
-                    id: 1,
-                    message: 'Hi! Nice to meet you',
-                    time: '16:47',
-                    isPerson: true
-                },
-                {
-                    id: 2,
-                    message: 'Me Too!',
-                    time: '16:48',
-                    isPerson: false
+                    id: 0,
+                    to_telp: '',
+                    message: '',
+                    time: '',
                 }
             ],
         }
     },
-    methods: {
-        log(msg: string) {
-            if (msg) {
-                console.log(msg)
-            }
-        },
-        sendMsg(msg: string) {
-            if (msg) {
-                this.chatBox.push({
-                    id: this.msgId++,
-                    message: msg,
-                    time:
-                        `${new Date().getHours()}:${new Date().getMinutes()}`,
-                    isPerson: false
-                });
-            }
 
-            let chat = {
-                to_user: this.to_user,
-                message: this.message,
-                created_at: this.time
+    methods: {
+        sendMsg(message: string) {
+            if (!this.message || !this.to_telp) {
+                alert('Tolong Lengkapi Section yang tersedia');
+                return;
             }
-            console.log(chat)
+            this.chatBox.push({
+                id: this.Id++,
+                to_telp: this.to_telp,
+                message: this.message,
+                time:
+                    `${new Date().getHours()}:${new Date().getMinutes()}`,
+            });
+
+            let chats = {
+                from_telp: this.from_telp,
+                to_telp: this.to_telp,
+                message: this.message,
+                sent: this.time,
+            }
+            this.message = '',
+
+                console.log(chats)
+            axios.post("http://127.0.0.1:5000/sendchat", chats)
+                .then(response => {
+                    console.log(response);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
     },
-    setup() {
-        const chats = ref();
-
-        onMounted(async () => {
-            const response = await axios.get('http://127.1.0.0.0.5/getchats')
-            console.log(response.data)
-        });
-        return { chats }
-    }
 });
 </script>
 
@@ -147,6 +139,13 @@ ion-toolbar {
     --background: #ff884b;
     --color: black;
     text-align: left;
+}
+
+.atas {
+    --background: #FFD384;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
 }
 
 ion-input {
@@ -167,7 +166,7 @@ ion-button {
     padding: 0;
 }
 
-.viewchat-header h1 {
+.newchat-header h1 {
     color: black;
     font-size: 20px;
     font-weight: 300;
@@ -188,12 +187,6 @@ ion-button {
     background-color: #FFD384;
     border-radius: 8px;
     padding: 0 8px;
-}
-
-.msg-person {
-    margin-top: 8px;
-    float: left;
-    clear: both;
 }
 
 .msg-you {
