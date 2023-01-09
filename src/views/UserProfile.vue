@@ -140,7 +140,7 @@ export default defineComponent({
             console.log();
         },
         getUser(id: string) {
-            axios.get(`http://127.0.0.1:5000/user/${id}`)
+            axios.get(`http://103.166.156.127/mahameru/user/${id}`)
                 .then(res => {
                     this.user = res.data[0]
                     this.user['id'] = id
@@ -157,7 +157,7 @@ export default defineComponent({
             data.append('notelp', this.user['notelp']);
             data.append('pin', this.user['pin']);
 
-            axios.put(`http://127.0.0.1:5000/updateuser/${id}`, data, {
+            axios.put(`http://103.166.156.127/mahameru/updateuser/${id}`, data, {
                 transformRequest: () => data
             })
                 .then((res) => {

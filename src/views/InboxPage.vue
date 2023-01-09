@@ -26,18 +26,18 @@
                   <ion-row>
                     <ion-col>
                       <div class="nameuserchat">
-                        <h1>{{ chat.sender.name }}</h1>
+                        <h1> {{ chat.sender.name }} </h1>
                       </div>
                     </ion-col>
                     <ion-col>
                       <div class="datemessage">
-                        <h1>{{ calculateTimeDifference(chat.latest_message.sent) }}</h1>
+                        <h1> {{ calculateTimeDifference(chat.latest_message.sent) }} </h1>
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <div class="messagetext">
-                      <h1>{{ chat.latest_message.message }}</h1>
+                      <h1> {{ chat.latest_message.message }} </h1>
                     </div>
                   </ion-row>
                 </ion-col>
@@ -88,19 +88,21 @@ export default defineComponent({
   },
 
   mounted() {
-    this.getData();
+    // Lakukan request ke database untuk mendapatkan data chat
+    axios.get(`http://103.166.156.127/mahameru/inbox/<to_telp>=${this.to_telp}`)
+      .then((response) => {
+        // Jika request berhasil, tambahkan item ke dalam array chats
+        response.data.forEach((chat: any) => {
+          this.chats.push(chat);
+        });
+      })
+      .catch((error) => {
+        // Jika request gagal, tampilkan error di console
+        console.error(error);
+      });
   },
 
   methods: {
-    async getData() {
-      try {
-        const response = await axios.get(`http://127.0.0.1:5000/inbox/<to_telp>=${this.to_telp}`);
-        this.chats = response.data;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
     calculateTimeDifference(sent: string) {
       const sentMoment = moment(sent, "MM/DD/YYYY, HH:mm:ss");
       const currentTime = moment();
@@ -121,7 +123,6 @@ export default defineComponent({
 
   created() {
     // Timer untuk memperbarui selisih waktu setiap 1 menit
-    this.getData();
 
     setInterval(() => {
       this.chats.forEach((chat: any) => {

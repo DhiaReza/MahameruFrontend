@@ -132,7 +132,7 @@ export default defineComponent({
       bodyFormData.append("pin", this.form["pin"]);
       bodyFormData.append("contact_id", '44')
 
-      await axios.post('http://127.0.0.1:5000/createuser', bodyFormData, {
+      await axios.post('http://103.166.156.127/mahameru/createuser', bodyFormData, {
         transformRequest: (data) => { return data }
       })
         .then((res) => {

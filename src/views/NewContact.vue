@@ -82,7 +82,7 @@ export default  defineComponent({
         bodyFormData.append("name", this.form["name"]);
         bodyFormData.append("notelp", this.form["notelp"]);
 
-      await axios.post('http://127.0.0.1:5000/createcontact', bodyFormData, {
+      await axios.post('http://103.166.156.127/mahameru/createcontact', bodyFormData, {
         transformRequest: (data) => {return data}
       })
         .then((res) => {

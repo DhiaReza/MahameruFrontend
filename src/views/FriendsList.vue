@@ -97,7 +97,7 @@ export default defineComponent({
   },
 
   mounted() {
-    axios.get('http://127.0.0.1:5000/contacts')
+    axios.get('http://103.166.156.127/mahameru/contacts')
       .then(res => {
         this.contacts = res.data;
       })

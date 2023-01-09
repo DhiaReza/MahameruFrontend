@@ -122,7 +122,7 @@ export default defineComponent({
             this.message = '',
 
                 console.log(chats)
-            axios.post("http://127.0.0.1:5000/sendchat", chats)
+            axios.post("http://103.166.156.127/mahameru/sendchat", chats)
                 .then(response => {
                     console.log(response);
                 })

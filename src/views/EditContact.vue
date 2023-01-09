@@ -90,7 +90,7 @@ export default  defineComponent({
     },
     methods: {
         getcontact(id: string) {
-            axios.get(`http://127.0.0.1:5000/contact/${id}`)
+            axios.get(`http://103.166.156.127/mahameru/contact/${id}`)
             .then(res => {
                     this.contact = res.data[0]
                     this.contact['name']
@@ -98,7 +98,7 @@ export default  defineComponent({
                 }).catch(err => {
                     console.error(err);
                 }); 
-          //di console log akan keluar http://127.0.0.1:5000/contact/undefined dan failed 500
+          //di console log akan keluar http://103.166.156.127/mahameru/contact/undefined dan failed 500
         },
         UpdateContact(id: string) {
             console.log(this.contact)
@@ -107,7 +107,7 @@ export default  defineComponent({
             data.append('name', this.contact['name']);
             data.append('notelp', this.contact['notelp']);
 
-            axios.put(`http://127.0.0.1:5000/updatecontact/${id}`, data, {
+            axios.put(`http://103.166.156.127/mahameru/updatecontact/${id}`, data, {
                 transformRequest: ()=> data
             })
                 .then((res) => {
@@ -120,7 +120,7 @@ export default  defineComponent({
         },
         DeleteContact(id: string) { //delete masih belum bisa
           if (id) {
-              axios.delete(`http://127.0.0.1:5000/detelecontact/${id}`)
+              axios.delete(`http://103.166.156.127/mahameru/detelecontact/${id}`)
               .then(res => {console.log(res);
               })
               .catch(error => {console.error(error);
