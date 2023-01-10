@@ -8,14 +8,14 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="true">
       <ion-list>
         <div class="searchbar">
           <ion-searchbar showCancelButton="focus" class="custom"></ion-searchbar>
         </div>
       </ion-list>
       <ion-list>
-        <div class="chatview" v-for="chat in chats" :key="chat._id">
+        <div class="chatview" v-for="chat in chats" :key="chat.id">
           <ion-item href="/viewchat">
             <ion-avatar slot="start">
               <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -26,18 +26,18 @@
                   <ion-row>
                     <ion-col>
                       <div class="nameuserchat">
-                        <h1> {{ chat.sender.name }} </h1>
+                        <h1>{{ chat.to_telp }}</h1>
                       </div>
                     </ion-col>
                     <ion-col>
                       <div class="datemessage">
-                        <h1> {{ calculateTimeDifference(chat.latest_message.sent) }} </h1>
+                        <h1>{{ calculateTimeDifference(chat.sent) }}</h1>
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <div class="messagetext">
-                      <h1> {{ chat.latest_message.message }} </h1>
+                      <h1>{{ chat.message }}</h1>
                     </div>
                   </ion-row>
                 </ion-col>
@@ -46,7 +46,7 @@
           </ion-item>
         </div>
       </ion-list>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab horizontal="end">
         <ion-fab-button href="/newchat">
           <ion-icon :icon="add"></ion-icon>
         </ion-fab-button>
@@ -56,50 +56,38 @@
 </template>
 
 <script lang="ts">
-import { IonHeader, IonToolbar, IonContent, IonList, IonSearchbar, IonLabel, IonCol, IonAvatar, IonGrid, IonPage, IonItem, IonRow, IonFab, IonFabButton, IonIcon } from '@ionic/vue';
+import { IonHeader, IonToolbar, IonContent, IonList, IonSearchbar, IonGrid, IonRow, IonFab, IonFabButton, IonIcon } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { add } from 'ionicons/icons';
 import axios from 'axios';
 import moment from 'moment';
-
 export default defineComponent({
   name: 'InboxChat',
   components: {
-    IonHeader, IonCol, IonAvatar,
+    IonHeader,
     IonToolbar,
-    IonContent, IonList, IonSearchbar, IonGrid, IonRow, IonFab, IonFabButton, IonIcon, IonLabel, IonPage, IonItem,
+    IonContent, IonList, IonSearchbar, IonGrid, IonRow, IonFab, IonFabButton, IonIcon
   },
   data() {
     return {
       add,
-      to_telp: "",
       chats: [{
-        _id: "",
-        latest_message: {
-          message: "",
-          sent: "",
-        },
-        sender: {
-          name: "",
-        },
-        sender_id: "",
+        id: 0,
+        to_telp: '',
+        message: '',
+        sent: ``,
       }],
+      displayedNumbers: [],
     };
   },
 
   mounted() {
-    // Lakukan request ke database untuk mendapatkan data chat
-    axios.get(`http://103.166.156.127/mahameru/inbox/<to_telp>=${this.to_telp}`)
-      .then((response) => {
-        // Jika request berhasil, tambahkan item ke dalam array chats
-        response.data.forEach((chat: any) => {
-          this.chats.push(chat);
-        });
-      })
-      .catch((error) => {
-        // Jika request gagal, tampilkan error di console
-        console.error(error);
+    axios.get("http://103.166.156.127/mahameru/getchat/all").then(response => {
+      this.chats = response.data;
+      this.chats.sort((a, b) => {
+        return new Date(b.sent).getTime() - new Date(a.sent).getTime();
       });
+    });
   },
 
   methods: {
@@ -107,7 +95,6 @@ export default defineComponent({
       const sentMoment = moment(sent, "MM/DD/YYYY, HH:mm:ss");
       const currentTime = moment();
       const timeDifference = moment.duration(currentTime.diff(sentMoment)); // Calculate time difference using duration function
-
       // Format the time difference and return it
       if (timeDifference.asMinutes() < 1) {
         return 'Just now';
@@ -123,7 +110,6 @@ export default defineComponent({
 
   created() {
     // Timer untuk memperbarui selisih waktu setiap 1 menit
-
     setInterval(() => {
       this.chats.forEach((chat: any) => {
         chat.timeDifference = this.calculateTimeDifference(chat.sent);
