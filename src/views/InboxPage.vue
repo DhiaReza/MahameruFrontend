@@ -15,7 +15,7 @@
         </div>
       </ion-list>
       <ion-list>
-        <div class="chatview" v-for="chat in chats" :key="chat.id">
+        <div class="chatview" v-for="chat in filteredChats" :key="chat.id">
           <ion-item href="/viewchat">
             <ion-avatar slot="start">
               <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -77,18 +77,32 @@ export default defineComponent({
         message: '',
         sent: ``,
       }],
-      displayedNumbers: [],
     };
+  },
+
+  computed: {
+    filteredChats() {
+      const uniqueNumbers = new Set()
+      const uniqueChats = this.chats.filter(chat => {
+        if (uniqueNumbers.has(chat.to_telp)) {
+          return false;
+        }
+        uniqueNumbers.add(chat.to_telp)
+        return true
+      })
+      return uniqueChats;
+    }
   },
 
   mounted() {
     axios.get("http://103.166.156.127/mahameru/getchat/all").then(response => {
       this.chats = response.data;
-      this.chats.sort((a, b) => {
+      this.chats = this.chats.sort((a, b) => {
         return new Date(b.sent).getTime() - new Date(a.sent).getTime();
       });
     });
   },
+
 
   methods: {
     calculateTimeDifference(sent: string) {
